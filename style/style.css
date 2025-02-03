@@ -7,8 +7,9 @@ body {
   display: flex;
 }
 canvas {
-  height: 50vh;
+  max-height: 50vh;
   width: 100vw;
+  display: block;
 }
 dialog {
   position: absolute;

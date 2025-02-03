@@ -1,11 +1,18 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-const Ground = document.getElementById('ground');
 
-const Trees = document.getElementById('trees');
-const ForeGround = document.getElementById('foreground');
-const SKY = document.getElementById('sky');
 
+const Ground = document.getElementById('road');
+const ForeGround_Trees = document.getElementById('foreground-trees');
+const Telegraph_poles = document.getElementById('telegraph-poles');
+const Skybox = document.getElementById('sky');
+const Distant_Trees_Backdrop = document.getElementById('distant-trees-bd');
+const Distant_Trees_Backdrop_2 = document.getElementById('distant-trees-bd-2');
+const Distant_Trees = document.getElementById('distant-trees');
+
+
+let music = new Audio('./assets/music/sunshineskirmish.mp3');
+music.loop = true;
 
 
 
@@ -33,20 +40,23 @@ class BgLayer{
   }
 }
 
-let skybox = new BgLayer(SKY, 0.5);
-let trees = new BgLayer(ForeGround, 1);
-let poles = new BgLayer(Trees, 2);
+let skybox = new BgLayer(Skybox, 0.5);
+let trees = new BgLayer(ForeGround_Trees, 1);
+let poles = new BgLayer(Telegraph_poles, 2);
 let bgLayer = new BgLayer(Ground, 5);
+let distantTrees = new BgLayer(Distant_Trees, 0.5);
+let distantTreesBackdrop = new BgLayer(Distant_Trees_Backdrop, 0.5);
+let distantTreesBackdrop2 = new BgLayer(Distant_Trees_Backdrop_2, 0.5);
 
-function startGame(){
-  animate();
-}
 
 function animate(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // draw images to canvas order of rendering is important
     skybox.draw();
+    distantTreesBackdrop.draw();
+    distantTreesBackdrop2.draw();
+    distantTrees.draw();
     trees.draw();
     poles.draw();
     bgLayer.draw();
@@ -55,8 +65,28 @@ function animate(){
 
     // update positions of images to canvas
     skybox.update();
+    distantTreesBackdrop.update();
+    distantTreesBackdrop2.update();
+    distantTrees.update();
     trees.update();
     poles.update();
     bgLayer.update();
     requestAnimationFrame(animate);
+}
+
+
+function startMusic(){
+  music.play();
+}
+function toggleSound() {
+  if (music.paused) {
+    music.play();
+  } else {
+    music.pause();
+  }
+}
+
+function startGame(){
+  startMusic();
+  animate();
 }
