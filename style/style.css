@@ -1,0 +1,48 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.game-container {
+  display: flex;
+}
+canvas {
+  height: 50vh;
+  width: 100vw;
+}
+dialog {
+  position: absolute;
+  align-self: center;
+  justify-self: center;
+  width: 50%;
+  border-radius: 10px;
+  background-color: white;
+}
+dialog h1 {
+  text-align: center;
+
+}
+dialog menu {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  list-style-type: none;
+}
+dialog menu li {
+  width: 20%;
+  margin: 0;
+  padding: 0;
+}
+dialog button {
+  margin: 10px;
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+

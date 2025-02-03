@@ -5,9 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>jumping Game</title>
     <link rel="stylesheet" href="style/style.css">
-    <script src="logique/script.js" defer></script>
+    <script src="logic/script.js" defer></script>
 </head>
 <body>
-    
+    <main class="game-container">
+        <canvas id="game" width="800" height="400">
+            <img id="sky" src="./assets/background/0.png" alt="" />
+            <img id="distant-trees-bg" src="./assets/background/1.png" alt="" />
+            <img id="distant-trees" src="./assets/background/2.png" alt="" />
+            <img id="trees-bg" src="./assets/background/3.png" alt="" />
+            <img id="trees" src="./assets/background/4.png" alt="" />
+            <img id="foreground" src="./assets/background/5.png" alt="" />
+            <img id="ground" src="./assets/background/6.png" alt="" />
+        </canvas>
+        <dialog id="start-menu-dialog" open>
+            <form method="dialog">
+                <h1>Start Game</h1>
+                <menu>
+                    <li><button aria-label="start game" onclick="startGame()" type="submit">Start</button></li>
+                    <li><button>Options</button></li>
+                    <li><button>Local Leaderboard</button></li>
+                </menu>
+            </form>
+        </dialog>
+    </main>
 </body>
 </html>
