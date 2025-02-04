@@ -8,28 +8,71 @@
     <script src="logic/script.js" defer></script>
 </head>
 <body>
-    <main class="game-container">
+    <section class="game-container">
+        <div class="game-header">
+            <button id="toggle-sound" aria-label="toggle sound" onclick="toggleSound()">
+                mute
+            </button>
+            <small aria-label="score" id="score">1000</small>
+        </div>
         <canvas id="game" width="800" height="400">
-            <img id="sky" src="./assets/background/skybox.png" alt="" />
-            <img id="distant-trees-bd" src="./assets/background/distant-trees-backdrop.png" alt="" />
-            <img id="distant-trees-bd-2" src="./assets/background/distant-trees-backdrop-2.png" alt="" />
-            <img id="distant-trees" src="./assets/background/distant-trees.png" alt="" />
-            <img id="telegraph-poles" src="./assets/background/telegraph-poles.png" alt="" />
-            <img id="foreground-trees" src="./assets/background/foreground-trees.png" alt="" />
-            <img id="road" src="./assets/background/foreground-road.png" alt="" />
-            
+            <img id="sky" src="./assets/background/skybox.png" alt="skybox" data-layer-level="1"/>
+            <img id="distant-trees-bd" src="./assets/background/distant-trees-backdrop.png" alt="shadowed distant trees in the background" data-layer-level="2" />
+            <img id="distant-trees-bd-2" src="./assets/background/distant-trees-backdrop-2.png" alt="shadowed distant trees in the background" data-layer-level="3" />
+            <img id="distant-trees" src="./assets/background/distant-trees.png" alt="distant trees in the background" data-layer-level="4"/>
+            <img id="telegraph-poles" src="./assets/background/telegraph-poles.png" alt="telegraph poles in the foreground" data-layer-level="5"/>
+            <img id="foreground-trees" src="./assets/background/foreground-trees.png" alt="trees in the foreground" data-layer-level="6"/>
+            <img id="road" src="./assets/background/foreground-road.png" alt="road" data-layer-level="7"/>
         </canvas>
-        <button id="toggle-sound" aria-label="toggle sound" onclick="toggleSound()">
-            mute
-        </button>
         <dialog id="start-menu-dialog" open>
             <form method="dialog">
                 <h1>Start Game</h1>
-                <menu>
-                    <li><button aria-label="start game" onclick="startGame()" type="submit">Start</button></li>
-                </menu>
+                <button aria-label="start game" onclick="startGame()" type="submit">Start</button>
+                <button aria-label="controls" onclick="showControls()">Controls</button>
+                <button aria-label="options" onclick="showSettings()">Options</button>
+                <button aria-label="credits" onclick="showCredits()">Credits</button>
             </form>
         </dialog>
-    </main>
+
+        <dialog id="control-menu-dialog">
+            <form method="dialog">
+                <h1>Controls</h1>
+                <div>
+                    <p>Jump: <kbd>Space</kbd></p>
+                    <p>Mute: <kbd>m</kbd></p>
+                    <p>Pause: <kbd>p</kbd> | <kbd>Esc</kbd></p>
+                    <p>Increase Volume <kbd>v</kbd></p>
+                    <p>Decrease Volume <kbd>b</kbd></p>
+                </div>
+            </form>
+        </dialog>
+        <dialog id="settings-menu-dialog">
+            <form method="dialog">
+                <h1>Settings</h1>
+                <div>
+                    <label for="volume">Background Volume</label>
+                    <input type="range" id="volume" name="volume" min="0" max="100" value="100" oninput="changeVolume(this.value / 100)">
+                </div>
+                <div>
+                    <label for="volume">SFX Volume</label>
+                    <input type="range" id="volume" name="volume" min="0" max="100" value="100" oninput="changeVolume(this.value / 100)">
+                </div>
+                <div>
+                    <label for="volume">Toggle Fullscreen</label>
+                    <input type="checkbox" id="fullscreen" name="fullscreen" onchange="toggleFullscreen()">
+                </div>
+            </form>
+        </dialog>
+        <dialog id="credits-menu-dialog">
+            <form method="dialog">
+                <h1>Credits</h1>
+                <div>
+                    <p>Game by ...</p>
+                    <p>Art by ...</p>
+                    <p>Music by ...</p>
+                </div>
+            </form>
+        </dialog>
+    </section>
 </body>
 </html>

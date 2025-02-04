@@ -3,13 +3,14 @@ body {
     padding: 0;
     box-sizing: border-box;
 }
-.game-container {
-  display: flex;
-}
+
 canvas {
-  max-height: 50vh;
-  width: 100vw;
   display: block;
+  aspect-ratio: 4;
+  width: 100%;
+}
+img {
+  width: 100%;
 }
 dialog {
   position: absolute;
@@ -45,5 +46,19 @@ dialog button {
   background-color: #007bff;
   color: white;
   border: none;
+}
+
+.game-header {
+  position: absolute;
+  top: 0;
+  display: flex;
+  width: 100%;
+  flex-wrap: nowrap;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+}
+
+.game-container {
+  display: flex;
 }
 
