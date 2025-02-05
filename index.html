@@ -24,17 +24,20 @@
             <img id="foreground-trees" src="./assets/background/foreground-trees.png" alt="trees in the foreground" data-layer-level="6"/>
             <img id="road" src="./assets/background/foreground-road.png" alt="road" data-layer-level="7"/>
         </canvas>
-        <dialog id="start-menu-dialog" open>
+        <div class="game-text">
+            <p data-text-order="1" >Enter Dialog Here</p>
+        </div>
+        <dialog class="dialog" id="start-menu-dialog">
             <form method="dialog">
                 <h1>Start Game</h1>
-                <button aria-label="start game" onclick="startGame()" type="submit">Start</button>
-                <button aria-label="controls" onclick="showControls()">Controls</button>
-                <button aria-label="options" onclick="showSettings()">Options</button>
-                <button aria-label="credits" onclick="showCredits()">Credits</button>
+                <button aria-label="open start game button" onclick="startGame()" type="submit">Start</button>
+                <button aria-label="open controls button" onclick="showControls()">Controls</button>
+                <button aria-label="open options button" onclick="showSettings()">Options</button>
+                <button aria-label="open credits button" onclick="showCredits()">Credits</button>
             </form>
         </dialog>
 
-        <dialog id="control-menu-dialog">
+        <dialog class="setting dialog" id="controls-menu-dialog">
             <form method="dialog">
                 <h1>Controls</h1>
                 <div>
@@ -46,16 +49,16 @@
                 </div>
             </form>
         </dialog>
-        <dialog id="settings-menu-dialog">
+        <dialog class="dialog" id="settings-menu-dialog">
             <form method="dialog">
                 <h1>Settings</h1>
                 <div>
                     <label for="volume">Background Volume</label>
-                    <input type="range" id="volume" name="volume" min="0" max="100" value="100" oninput="changeVolume(this.value / 100)">
+                    <input type="range" id="bg-volume-slider" name="volume" min="0" max="100" value="50" oninput="changeVolume(this.value / 100)">
                 </div>
                 <div>
                     <label for="volume">SFX Volume</label>
-                    <input type="range" id="volume" name="volume" min="0" max="100" value="100" oninput="changeVolume(this.value / 100)">
+                    <input type="range" id="bg-volume-slider" name="volume" min="0" max="100" value="50" oninput="changeVolume(this.value / 100)">
                 </div>
                 <div>
                     <label for="volume">Toggle Fullscreen</label>
@@ -63,7 +66,7 @@
                 </div>
             </form>
         </dialog>
-        <dialog id="credits-menu-dialog">
+        <dialog class="dialog" id="credits-menu-dialog">
             <form method="dialog">
                 <h1>Credits</h1>
                 <div>
