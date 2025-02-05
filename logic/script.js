@@ -1,20 +1,19 @@
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
 // dialog handlers
-const start_dialog = document.getElementById('start-menu-dialog');
-const controls_dialog = document.getElementById('controls-menu-dialog');
-const settings_dialog = document.getElementById('settings-menu-dialog');
-const credits_dialog = document.getElementById('credits-menu-dialog');
+const start_dialog = document.getElementById("start-menu-dialog");
+const controls_dialog = document.getElementById("controls-menu-dialog");
+const settings_dialog = document.getElementById("settings-menu-dialog");
+const credits_dialog = document.getElementById("credits-menu-dialog");
 let modal_history = [start_dialog];
 
-function showControls(){
+function showControls() {
   modal_history[modal_history.length - 1].close();
   modal_history.push(controls_dialog);
   controls_dialog.showModal();
 }
-function showSettings(){
+function showSettings() {
   modal_history[modal_history.length - 1].close();
   modal_history.push(settings_dialog);
   settings_dialog.showModal();
@@ -24,7 +23,7 @@ function showCredits() {
   modal_history.push(credits_dialog);
   credits_dialog.showModal();
 }
-function toggleFullscreen(){
+function toggleFullscreen() {
   if (document.fullscreenElement) {
     document.exitFullscreen();
   } else {
@@ -32,8 +31,8 @@ function toggleFullscreen(){
   }
 }
 // background handlers
-class BgLayer{
-  constructor(img, speed=1) {
+class BgLayer {
+  constructor(img, speed = 1) {
     this.img = img;
     this.quotent = img.width / img.height;
     this.img.height = canvas.height;
@@ -58,37 +57,44 @@ class BgLayer{
     ctx.drawImage(this.img, this.x2, 0, this.width, this.height);
   }
   update() {
-    if (this.x1 < -this.width + this.speed){
-        this.x1 = this.width - this.speed + this.x2;
+    if (this.x1 < -this.width + this.speed) {
+      this.x1 = this.width - this.speed + this.x2;
     }
-    if (this.x2 < -this.width + this.speed){
-        this.x2 = this.width - this.speed + this.x1;
+    if (this.x2 < -this.width + this.speed) {
+      this.x2 = this.width - this.speed + this.x1;
     }
     this.x1 -= this.speed;
     this.x2 -= this.speed;
   }
 }
 const backgroundImages = Array.from(
-    document.querySelectorAll("[data-layer-level]")
-  ).sort((a, b) => (
-    a.attributes['data-layer-level'].value - b.attributes['data-layer-level'].value
-  )
+  document.querySelectorAll("[data-layer-level]")
+).sort(
+  (a, b) =>
+    a.attributes["data-layer-level"].value -
+    b.attributes["data-layer-level"].value
 );
-const backgroundLayers = backgroundImages.map(image => {
-  return new BgLayer(image, image.attributes['data-layer-level'].value * 1)
-})
+const backgroundLayers = backgroundImages.map((image) => {
+  return new BgLayer(image, image.attributes["data-layer-level"].value * 1);
+});
 
-const dialog_text = Array.from(document.querySelector('[data-text-order]')).sort((a, b) => a.attributes['data-text-order'].value - b.attributes['data-text-order'].value);
-dialog_text.forEach(text => {
-  text.classlist.add('visible-text');
+const dialog_text = Array.from(
+  document.querySelector("[data-text-order]")
+).sort(
+  (a, b) =>
+    a.attributes["data-text-order"].value -
+    b.attributes["data-text-order"].value
+);
+dialog_text.forEach((text) => {
+  text.classList.add("visible-text");
 });
 
 // music handlers
-const music = new Audio('./assets/music/sunshineskirmish.mp3');
+const music = new Audio("./assets/music/sunshineskirmish.mp3");
 music.loop = true;
 music.volume = 0.5;
 
-function startMusic(){
+function startMusic() {
   music.play();
 }
 function toggleSound() {
@@ -98,14 +104,14 @@ function toggleSound() {
     music.pause();
   }
 }
-function stopMusic(){
+function stopMusic() {
   music.pause();
 }
-function playMusic(){
+function playMusic() {
   music.play();
 }
-function changeVolume(value){
-  if(music.volume + value < 1 && music.volume + value > 0){
+function changeVolume(value) {
+  if (music.volume + value < 1 && music.volume + value > 0) {
     music.volume = value;
   }
 }
@@ -113,36 +119,49 @@ function changeVolume(value){
 // gameLoop
 let game_started = false;
 let paused = false;
-function gameLoop(){
-    if (paused){
-      return;
+function gameLoop() {
+  if (paused) {
+    return;
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // draw images to canvas order of rendering is important
+  backgroundLayers.forEach((layer) => layer.draw());
+
+  // update positions of images to canvas
+  backgroundLayers.forEach((layer) => layer.update());
+  requestAnimationFrame(gameLoop);
+
+  obstacles.forEach((obstacle) => {
+    if (isColliding(player, obstacle)) {
+      score = Math.max(0, score - 100);
+      if (score === 0) {
+        endGame();
+      }
+      // check it
+    } else if (obstacle.x < 0) {
+      score += 100;
     }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
 
-    // draw images to canvas order of rendering is important
-    backgroundLayers.forEach(layer => layer.draw());
-
-    // update positions of images to canvas
-    backgroundLayers.forEach(layer => layer.update());
-    requestAnimationFrame(gameLoop);
+  displayScore();
 }
-
 
 // event handlers
 function handleEscape(e) {
   e.preventDefault();
-  if (modal_history.length > 1){
+  if (modal_history.length > 1) {
     const modal = modal_history.pop();
     const previousModal = modal_history[modal_history.length - 1];
     modal.close();
     previousModal.showModal();
     return;
   }
-  if (!game_started){
+  if (!game_started) {
     return;
   }
   paused = !paused;
-  if (paused){
+  if (paused) {
     settings_dialog.showModal();
   } else {
     settings_dialog.close();
@@ -150,33 +169,55 @@ function handleEscape(e) {
     playMusic();
   }
 }
-window.addEventListener('keydown', (e) => {
-  if (e.code === 'Escape'){
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Escape") {
     handleEscape(e);
   }
-  if (e.code === 'KeyM'){
+  if (e.code === "KeyM") {
     toggleSound();
   }
-  if (e.code === 'KeyV'){
+  if (e.code === "KeyV") {
     changeVolume(music.volume + 0.1);
   }
-  if (e.code === 'KeyB'){
+  if (e.code === "KeyB") {
     changeVolume(music.volume - 0.1);
   }
 });
 
-window.onload = function(){
+window.onload = function () {
   start_dialog.showModal();
-  backgroundLayers.forEach(layer => layer.draw());
+  backgroundLayers.forEach((layer) => layer.draw());
 };
-window.onresize = function(){
+window.onresize = function () {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  backgroundLayers.forEach(layer => layer.resize());
-}
+  backgroundLayers.forEach((layer) => layer.resize());
+};
 
-function startGame(){
+function startGame() {
   game_started = true;
   startMusic();
   gameLoop();
 }
+
+function isColliding(rect1, rect2) {
+  return (
+    rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.y + rect1.height > rect2.y
+  );
+}
+
+function endGame() {
+  paused = true;
+  stopMusic();
+  alert("Game Over");
+}
+
+function displayScore() {
+  const score = document.getElementById("score");
+  score.textContent = `Score: ${score}`;
+}
+
+const obstacles = [];
