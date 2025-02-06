@@ -1,7 +1,7 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-// dialog handlers
+// dialog handlers 
 const start_dialog = document.getElementById("start-menu-dialog");
 const controls_dialog = document.getElementById("controls-menu-dialog");
 const settings_dialog = document.getElementById("settings-menu-dialog");
@@ -30,7 +30,8 @@ function toggleFullscreen() {
     document.documentElement.requestFullscreen();
   }
 }
-// background handlers
+
+// background handlers 
 class BgLayer {
   constructor(img, speed = 1) {
     this.img = img;
@@ -67,6 +68,7 @@ class BgLayer {
     this.x2 -= this.speed;
   }
 }
+
 const backgroundImages = Array.from(
   document.querySelectorAll("[data-layer-level]")
 ).sort(
@@ -82,14 +84,13 @@ const dialog_text = Array.from(
   document.querySelector("[data-text-order]")
 ).sort(
   (a, b) =>
-    a.attributes["data-text-order"].value -
-    b.attributes["data-text-order"].value
+    a.attributes["data-text-order"].value - b.attributes["data-text-order"].value
 );
 dialog_text.forEach((text) => {
   text.classList.add("visible-text");
 });
 
-// music handlers
+// music handlers 
 const music = new Audio("./assets/music/sunshineskirmish.mp3");
 music.loop = true;
 music.volume = 0.5;
@@ -116,10 +117,87 @@ function changeVolume(value) {
   }
 }
 
+
+const player = {
+  x: 10,
+  Y: 260,
+  width: 50,
+  height: 80,
+  Y_velocity: 0,
+  grav: 0.5,
+  jumping: false,
+};
+
+function applyGravity() {
+  if (player.jumping) {
+    player.Y_velocity += player.grav;
+    player.Y += player.Y_velocity;
+    checkLanding();
+  }
+}
+
+function checkLanding() {
+  if (player.Y >= 280) {
+    player.Y = 280;
+    player.jumping = false;
+    player.Y_velocity = 0;
+  }
+}
+
+
+const obstacles = [];
+let lastObstacleTime = 0;
+const obstacleSpawnRate = 1500; 
+
+function spawnObstacle() {
+  const obstacle = {
+    x: canvas.width + Math.random() * 100,
+    y: 280, 
+    width: 50,
+    height: 50,
+    img: document.getElementById("obstacle"), 
+  };
+  obstacles.push(obstacle);
+}
+
+function drawObstacles() {
+  obstacles.forEach((obstacle) => {
+    ctx.drawImage(obstacle.img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+    obstacle.x -= 5; 
+
+    if (obstacle.x + obstacle.width < 0) {
+      const index = obstacles.indexOf(obstacle);
+      if (index > -1) {
+        obstacles.splice(index, 1);
+        score += 100; 
+      }
+    }
+  });
+}
+
+function checkCollision() {
+  obstacles.forEach((obstacle) => {
+    if (
+      player.x < obstacle.x + obstacle.width &&
+      player.x + player.width > obstacle.x &&
+      player.Y < obstacle.y + obstacle.height &&
+      player.Y + player.height > obstacle.y
+    ) {
+      endGame();
+    }
+  });
+}
+
+function drawPlayer() {
+  const playerImg = document.getElementById("player");
+  ctx.drawImage(playerImg, player.x, player.Y, player.width, player.height);
+}
+
 // gameLoop
 let game_started = false;
 let paused = false;
-function gameLoop() {
+
+function gameLoop(timestamp) {
   if (paused) {
     return;
   }
@@ -130,45 +208,28 @@ function gameLoop() {
 
   // update positions of images to canvas
   backgroundLayers.forEach((layer) => layer.update());
-  requestAnimationFrame(gameLoop);
 
-  obstacles.forEach((obstacle) => {
-    if (isColliding(player, obstacle)) {
-      score = Math.max(0, score - 100);
-      if (score === 0) {
-        endGame();
-      }
-      // check it
-    } else if (obstacle.x < 0) {
-      score += 100;
-    }
-  });
+  
+  if (timestamp - lastObstacleTime > obstacleSpawnRate) {
+    spawnObstacle();
+    lastObstacleTime = timestamp;
+  }
 
+  drawObstacles();
+  applyGravity();
+  checkCollision();
+  drawPlayer();
   displayScore();
+  requestAnimationFrame(gameLoop);
 }
 
-// event handlers
-function handleEscape(e) {
-  e.preventDefault();
-  if (modal_history.length > 1) {
-    const modal = modal_history.pop();
-    const previousModal = modal_history[modal_history.length - 1];
-    modal.close();
-    previousModal.showModal();
-    return;
+// event listeners and handlers 
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space" && !player.jumping) {
+    player.jumping = true;
+    player.Y_velocity = -10;
   }
-  if (!game_started) {
-    return;
-  }
-  paused = !paused;
-  if (paused) {
-    settings_dialog.showModal();
-  } else {
-    settings_dialog.close();
-    gameLoop();
-    playMusic();
-  }
-}
+});
 window.addEventListener("keydown", (e) => {
   if (e.code === "Escape") {
     handleEscape(e);
@@ -188,14 +249,17 @@ window.onload = function () {
   start_dialog.showModal();
   backgroundLayers.forEach((layer) => layer.draw());
 };
+
 window.onresize = function () {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   backgroundLayers.forEach((layer) => layer.resize());
 };
 
+// startGame 
 function startGame() {
   game_started = true;
+  score = 0;
   startMusic();
   gameLoop();
 }
@@ -216,8 +280,6 @@ function endGame() {
 }
 
 function displayScore() {
-  const score = document.getElementById("score");
-  score.textContent = `Score: ${score}`;
+  const scoreElement = document.getElementById("score");
+  scoreElement.textContent = `Score: ${score}`;
 }
-
-const obstacles = [];
