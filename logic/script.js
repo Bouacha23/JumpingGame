@@ -100,11 +100,11 @@ function changeVolume(value) {
 
 const player = {
   x: 10,
-  Y: 260,
-  width: 50,
-  height: 80,
+  Y: 285,
+  width: 30,
+  height: 50,
   Y_velocity: 0,
-  grav: 0.5,
+  grav: 0.6,
   jumping: false,
 };
 
@@ -132,18 +132,18 @@ const obstacleSpawnRate = 1500;
 function spawnObstacle() {
   const obstacle = {
     x: canvas.width + Math.random() * 100,
-    y: 280, 
-    width: 50,
-    height: 50,
+    y: 305, 
+    width: Math.floor(Math.random() * (50 - 30) + 30 ),
+    height:30 ,
     img: document.getElementById("obstacle"), 
   };
   obstacles.push(obstacle);
 }
 
-function drawObstacles() {
+function drawObstacles(x) {
   obstacles.forEach((obstacle) => {
     ctx.drawImage(obstacle.img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-    obstacle.x -= 5; 
+    obstacle.x -= x; 
 
     if (obstacle.x + obstacle.width < 0) {
       const index = obstacles.indexOf(obstacle);
@@ -195,7 +195,7 @@ function gameLoop(timestamp) {
     lastObstacleTime = timestamp;
   }
 
-  drawObstacles();
+  drawObstacles(6);
   applyGravity();
   checkCollision();
   drawPlayer();

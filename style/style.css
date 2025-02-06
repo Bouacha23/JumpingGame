@@ -114,8 +114,9 @@ dialog::backdrop {
   margin: 0;
   gap: 0;
   padding: 0;
-  width: 50%;
-  height: 90%;
+  width: 400px;
+  height: 400px;
+  overflow: hidden;
   background-color: transparent;
   border: none;
 }
