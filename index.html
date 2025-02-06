@@ -8,11 +8,16 @@
     <script src="logic/script.js" defer></script>
 </head>
 <body>
-    <header class="game-header">
-        <button id="toggle-sound" aria-label="toggle sound" onclick="toggleSound()">
-            mute
-        </button>
-        <small aria-label="score" id="score">1000</small>
+    <header>
+        <div class="game-header">
+            <button id="toggle-sound" aria-label="toggle sound" onclick="toggleSound()">
+                Mute
+            </button>
+            <button>
+                Pause
+            </button>
+            <small aria-label="score" id="score">1000</small>
+        </div>
     </header>
     <section class="game-container">
         <canvas id="game" width="800" height="400"> 
@@ -23,25 +28,25 @@
             <img id="telegraph-poles" src="./assets/background/telegraph-poles.png" alt="telegraph poles in the foreground" data-layer-level="5"/>
             <img id="foreground-trees" src="./assets/background/foreground-trees.png" alt="trees in the foreground" data-layer-level="6"/>
             <img id="road" src="./assets/background/foreground-road.png" alt="road" data-layer-level="7"/>
-            <img id="player" src="./images/person.png" /> 
-            <img id="obstacle" src="./images/bug.png" /> 
+            <img id="player" src="./images/person.png" alt="" /> 
+            <img id="obstacle" src="./images/bug.png" alt="" /> 
         </canvas>
-        <div class="game-text">
-            <p data-text-order="1" >Enter Dialog Here</p>
-        </div>
-    </section>
-    <dialog class="dialog" id="start-menu-dialog">
-        <form method="dialog">
-            <h1>Start Game</h1>
-            <button aria-label="open start game button" onclick="startGame()" type="submit">Start</button>
-            <button aria-label="open controls button" onclick="showControls()">Controls</button>
-            <button aria-label="open options button" onclick="showSettings()">Options</button>
-            <button aria-label="open credits button" onclick="showCredits()">Credits</button>
-        </form>
-    </dialog>
 
-    <dialog class="setting dialog" id="controls-menu-dialog">
-        <form method="dialog">
+    </section>
+
+    <dialog class="dialog" id="menu-dialog">
+        <menu class="tab-bar">
+            <li class="active"><button onclick="openTab(this, 'main-menu')" id="main-menu-btn"><img src="./assets/icons/play-svgrepo-com.svg" class="icon"/></button></li>
+            <li><button onclick="openTab(this, 'controls-menu')" type="button" id="controls-menu-btn"><img src="./assets/icons/controller-svgrepo-com.svg" class="icon" /></button></li>
+            <li><button onclick="openTab(this, 'settings-menu')" type="button" id="settings-menu-btn"><img src="./assets/icons/music-svgrepo-com.svg" class="icon" /></button></li>
+            <li><button onclick="openTab(this, 'credits-menu')" type="button" id="credits-menu-btn"><img src="./assets/icons/person-team-svgrepo-com.svg" class="icon" /></button></li>
+        </menu>
+        <section class="tab-menu " id="main-menu">
+            <h1>Play Game</h1>
+            <p>Welcome to Run Branko Run the goal of the game is to help branko run away from bugs in the code and hopefully hide some so he doesnt notice them</p>
+            <button onclick="startGame()">Start Game</button>
+        </section>
+        <section class="tab-menu invisible" id="controls-menu">
             <h1>Controls</h1>
             <div>
                 <p>Jump: <kbd>Space</kbd></p>
@@ -50,34 +55,26 @@
                 <p>Increase Volume <kbd>v</kbd></p>
                 <p>Decrease Volume <kbd>b</kbd></p>
             </div>
-        </form>
-    </dialog>
-    <dialog class="dialog" id="settings-menu-dialog">
-        <form method="dialog">
+        </section>
+        <section class="tab-menu invisible" id="settings-menu">
             <h1>Settings</h1>
             <div>
                 <label for="volume">Background Volume</label>
-                <input type="range" id="bg-volume-slider" name="volume" min="0" max="100" value="50" oninput="changeVolume(this.value / 100)">
+                <input type="range" id="bg-volume-slider" name="bg-volume" min="0" max="100" value="50" oninput="changeVolume(this.value / 100)">
             </div>
             <div>
                 <label for="volume">SFX Volume</label>
-                <input type="range" id="bg-volume-slider" name="volume" min="0" max="100" value="50" oninput="changeVolume(this.value / 100)">
+                <input type="range" id="sfx-volume-slider" name="sfx-volume" min="0" max="100" value="50" oninput="changeVolume(this.value / 100)">
             </div>
-            <div>
-                <label for="volume">Toggle Fullscreen</label>
-                <input type="checkbox" id="fullscreen" name="fullscreen" onchange="toggleFullscreen()">
-            </div>
-        </form>
-    </dialog>
-    <dialog class="dialog" id="credits-menu-dialog">
-        <form method="dialog">
+        </section>
+        <section class="tab-menu invisible" id="credits-menu">
             <h1>Credits</h1>
             <div>
                 <p>Game by ...</p>
                 <p>Art by ...</p>
                 <p>Music by ...</p>
             </div>
-        </form>
+        </section>
     </dialog>
 </body>
 </html>

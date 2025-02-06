@@ -17,7 +17,6 @@ canvas {
   height: 100%;
 }
 
-
 dialog h1 {
   text-align: center;
 
@@ -36,15 +35,7 @@ dialog menu li {
   margin: 0;
   padding: 0;
 }
-dialog button {
-  margin: 10px;
-  padding: 10px;
-  width: 100%;
-  border-radius: 5px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-}
+
 dialog::backdrop {
   background: repeating-linear-gradient(
     45deg,
@@ -56,8 +47,51 @@ dialog::backdrop {
   --webkit-backdrop-filter: blur(3px);
 }
 
+.tab-bar{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  padding: 0;
+  margin: 0;
+  height: 10%;
+}
+.tab-bar > li {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.tab-bar > li > button {
+  width: 100%;
+  height: 100%;
+  background-image: url("../assets/textures/wood_texture_full_screen.png");
+  background-repeat: repeat;
+  border: none;
+  border: 4px solid #a07335;
+  border-radius: 10px 10px 0 0;
+}
+.tab-bar .icon {
+  height: 85%;
+}
+.tab-bar >li.active button {
+  border-bottom: 0;
+}
+.tab-menu {
+  background-image: url("../assets/textures/wood_texture_full_screen.png");
+  background-repeat: repeat;
+  height: 90%;
+  margin: 0;
+  padding: 1rem;
+  border: 4px solid #a07335;
+  border-radius: 0 0 10px 10px;
+  border-top: 0;
+  font-size: larger;
+  color: white;
+}
 .game-header {
   position: absolute;
+  z-index: 999;
   top: 0;
   display: flex;
   width: 100%;
@@ -75,17 +109,17 @@ dialog::backdrop {
 }
 
 .dialog {
-  position: absolute;
   align-self: center;
   justify-self: center;
+  margin: 0;
+  gap: 0;
+  padding: 0;
   width: 50%;
   height: 90%;
-  top: 5%;
-  bottom: 5%;
-  background-color: white;
-  border-radius: 10px;
-  padding: 10px;
+  background-color: transparent;
+  border: none;
 }
+
 .invisible {
   display: none;
   visibility: hidden;

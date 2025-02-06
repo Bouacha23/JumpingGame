@@ -2,34 +2,23 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 // dialog handlers 
-const start_dialog = document.getElementById("start-menu-dialog");
-const controls_dialog = document.getElementById("controls-menu-dialog");
-const settings_dialog = document.getElementById("settings-menu-dialog");
-const credits_dialog = document.getElementById("credits-menu-dialog");
-let modal_history = [start_dialog];
+const menu_dialog = document.getElementById("menu-dialog");
 
-function showControls() {
-  modal_history[modal_history.length - 1].close();
-  modal_history.push(controls_dialog);
-  controls_dialog.showModal();
+let currentTab = {
+  contentId: "main-menu",
+  buttonId: "main-menu-btn"
+};
+function openTab(elem, target) {
+  elem.parentElement.classList.add("active")
+  document.getElementById(currentTab.buttonId).parentElement.classList.remove("active")
+  document.getElementById(currentTab.contentId).classList.add("invisible")
+  document.getElementById(target).classList.remove("invisible")
+  currentTab.contentId = target;
+  currentTab.buttonId = elem.id;
 }
-function showSettings() {
-  modal_history[modal_history.length - 1].close();
-  modal_history.push(settings_dialog);
-  settings_dialog.showModal();
-}
-function showCredits() {
-  modal_history[modal_history.length - 1].close();
-  modal_history.push(credits_dialog);
-  credits_dialog.showModal();
-}
-function toggleFullscreen() {
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-  } else {
-    document.documentElement.requestFullscreen();
-  }
-}
+
+
+
 
 // background handlers 
 class BgLayer {
@@ -80,15 +69,6 @@ const backgroundLayers = backgroundImages.map((image) => {
   return new BgLayer(image, image.attributes["data-layer-level"].value * 1);
 });
 
-const dialog_text = Array.from(
-  document.querySelector("[data-text-order]")
-).sort(
-  (a, b) =>
-    a.attributes["data-text-order"].value - b.attributes["data-text-order"].value
-);
-dialog_text.forEach((text) => {
-  text.classList.add("visible-text");
-});
 
 // music handlers 
 const music = new Audio("./assets/music/sunshineskirmish.mp3");
@@ -230,6 +210,20 @@ window.addEventListener("keydown", (e) => {
     player.Y_velocity = -10;
   }
 });
+function handleEscape(e) {
+  e.preventDefault();
+  if (!game_started){
+    return;
+  }
+  paused = !paused;
+  if (paused){
+    menu_dialog.showModal();
+  } else {
+    menu_dialog.close();
+    gameLoop();
+    playMusic();
+  }
+}
 window.addEventListener("keydown", (e) => {
   if (e.code === "Escape") {
     handleEscape(e);
@@ -246,7 +240,7 @@ window.addEventListener("keydown", (e) => {
 });
 
 window.onload = function () {
-  start_dialog.showModal();
+  menu_dialog.showModal();
   backgroundLayers.forEach((layer) => layer.draw());
 };
 
@@ -260,6 +254,7 @@ window.onresize = function () {
 function startGame() {
   game_started = true;
   score = 0;
+  menu_dialog.close()
   startMusic();
   gameLoop();
 }
