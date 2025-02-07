@@ -159,7 +159,6 @@ function spawnObstacle() {
 }
 
 function drawObstacles(x) {
-  console.log("drawing obstacles");
   obstacles.forEach((obstacle) => {
     ctx.drawImage(
       obstacle.img,
@@ -188,11 +187,9 @@ function checkCollision() {
       player.dy < obstacle.y + obstacle.height &&
       player.dy + player.dheight > obstacle.y
     ) {
-      console.log("collision");
       if (!obstacle.hit) {
         score -= 100;
         obstacle.hit = true;
-        console.log(`New score after deduction: ${score}`);
       }
 
       if (score <= 0) {
