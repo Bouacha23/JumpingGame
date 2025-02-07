@@ -148,6 +148,7 @@ const obstacleSpawnRate = 1500;
 
 function spawnObstacle() {
   const obstacle = {
+    sprite_type: Math.floor(Math.random() * 3) * 32,
     x: canvas.width + Math.random() * 100,
     y: 305,
     width: Math.floor(Math.random() * (50 - 30) + 30),
@@ -162,6 +163,10 @@ function drawObstacles(x) {
   obstacles.forEach((obstacle) => {
     ctx.drawImage(
       obstacle.img,
+      obstacle.sprite_type,
+      0,
+      32,
+      32,
       obstacle.x,
       obstacle.y,
       obstacle.width,
