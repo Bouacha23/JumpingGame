@@ -10,7 +10,7 @@ body {
   padding: 0;
   box-sizing: border-box;
 }
-#branko{
+#branko {
   image-rendering: pixelated;
   width: 200%;
   height: 200%;
@@ -101,7 +101,38 @@ dialog::backdrop {
   width: 100%;
   flex-wrap: nowrap;
   flex-direction: row-reverse;
-  justify-content: space-between;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.game-header button {
+  border-radius: 3px;
+  cursor: pointer;
+  background-color: #007bff; /* Default background */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 16px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.game-header button:hover {
+  background-color: #0056b3; /* Darker blue */
+}
+
+.game-header button:active {
+  background-color: #003f7f; /* Even darker blue */
+  transform: scale(0.97); /* Slight shrink effect */
+}
+
+#score {
+  color: red;
+  background: rgb(253, 216, 53);
+  padding: 0.5rem 3rem;
+  margin: 0.5rem;
+  font-size: large;
+  border-radius: 3px;
+  font-weight: 500;
 }
 
 .game-container {
@@ -139,4 +170,8 @@ dialog::backdrop {
   position: absolute;
   top: 5%;
   left: 5%;
+}
+
+.button {
+  background-color: #007bff;
 }
