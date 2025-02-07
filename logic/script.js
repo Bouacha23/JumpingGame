@@ -1,6 +1,8 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+ctx.imageSmoothingEnabled = false;
+ctx.webkitImageSmoothingEnabled = false;
 // dialog handlers 
 const menu_dialog = document.getElementById("menu-dialog");
 const branko = document.getElementById("branko");
@@ -97,6 +99,24 @@ function changeVolume(value) {
     music.volume = value;
   }
 }
+const SFX_Jump = new Audio("./assets/sfx/jump.wav");
+SFX_Jump.volume = 0.2;
+SFX_Jump.loop = false;
+function playJumpSound() {
+  SFX_Jump.play();
+}
+const SFX_HIT = new Audio("./assets/sfx/hit.wav");
+SFX_HIT.volume = 0.2;
+SFX_HIT.loop = false;
+function playHitSound() {
+  SFX_HIT.play();
+}
+function controlSFXVolume(value) {
+  if (SFX_Jump.volume + value < 1 && SFX_Jump.volume + value > 0) {
+    SFX_Jump.volume = value;
+    SFX_HIT.volume = value;
+  }
+}
 
 
 // const player = {
@@ -118,8 +138,8 @@ function applyGravity() {
 }
 
 function checkLanding() {
-  if (player.dy >= 280) {
-    player.dy = 280;
+  if (player.dy >= 260) {
+    player.dy = 260;
     player.jumping = false;
     player.Y_velocity = 0;
   }
@@ -195,9 +215,9 @@ const player = {
   dx: 10,
   dy: 260,
   dwidth: 50,
-  dheight: 80,
+  dheight: 70,
   Y_velocity: 0,
-  grav: 0.5,
+  grav: 0.6,
   jumping: false,
 }
 let currentFrame = 0;
@@ -241,6 +261,7 @@ window.addEventListener("keydown", (e) => {
   if (e.code === "Space" && !player.jumping) {
     player.jumping = true;
     player.Y_velocity = -10;
+    playJumpSound();
   }
 });
 function handleEscape(e) {
