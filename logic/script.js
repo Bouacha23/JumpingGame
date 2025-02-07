@@ -3,27 +3,26 @@ const ctx = canvas.getContext("2d");
 
 ctx.imageSmoothingEnabled = false;
 ctx.webkitImageSmoothingEnabled = false;
-// dialog handlers 
+// dialog handlers
 const menu_dialog = document.getElementById("menu-dialog");
 const branko = document.getElementById("branko");
 
 let currentTab = {
   contentId: "main-menu",
-  buttonId: "main-menu-btn"
+  buttonId: "main-menu-btn",
 };
 function openTab(elem, target) {
-  elem.parentElement.classList.add("active")
-  document.getElementById(currentTab.buttonId).parentElement.classList.remove("active")
-  document.getElementById(currentTab.contentId).classList.add("invisible")
-  document.getElementById(target).classList.remove("invisible")
+  elem.parentElement.classList.add("active");
+  document
+    .getElementById(currentTab.buttonId)
+    .parentElement.classList.remove("active");
+  document.getElementById(currentTab.contentId).classList.add("invisible");
+  document.getElementById(target).classList.remove("invisible");
   currentTab.contentId = target;
   currentTab.buttonId = elem.id;
 }
 
-
-
-
-// background handlers 
+// background handlers
 class BgLayer {
   constructor(img, speed = 1) {
     this.img = img;
@@ -72,8 +71,7 @@ const backgroundLayers = backgroundImages.map((image) => {
   return new BgLayer(image, image.attributes["data-layer-level"].value * 1);
 });
 
-
-// music handlers 
+// music handlers
 const music = new Audio("./assets/music/sunshineskirmish.mp3");
 music.loop = true;
 music.volume = 0.5;
@@ -118,7 +116,6 @@ function controlSFXVolume(value) {
   }
 }
 
-
 // const player = {
 //   x: 10,
 //   Y: 260,
@@ -145,32 +142,39 @@ function checkLanding() {
   }
 }
 
-
 const obstacles = [];
 let lastObstacleTime = 0;
-const obstacleSpawnRate = 1500; 
+const obstacleSpawnRate = 1500;
 
 function spawnObstacle() {
   const obstacle = {
     x: canvas.width + Math.random() * 100,
-    y: 305, 
-    width: Math.floor(Math.random() * (50 - 30) + 30 ),
-    height:30 ,
-    img: document.getElementById("obstacle"), 
+    y: 305,
+    width: Math.floor(Math.random() * (50 - 30) + 30),
+    height: 30,
+    img: document.getElementById("obstacle"),
+    hit: false,
   };
   obstacles.push(obstacle);
 }
 
 function drawObstacles(x) {
+  console.log("drawing obstacles");
   obstacles.forEach((obstacle) => {
-    ctx.drawImage(obstacle.img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-    obstacle.x -= x; 
+    ctx.drawImage(
+      obstacle.img,
+      obstacle.x,
+      obstacle.y,
+      obstacle.width,
+      obstacle.height
+    );
+    obstacle.x -= x;
 
     if (obstacle.x + obstacle.width < 0) {
       const index = obstacles.indexOf(obstacle);
-      if (index > -1) {
+      if (index > -1 && !obstacle.hit) {
         obstacles.splice(index, 1);
-        score += 100; 
+        score += 50;
       }
     }
   });
@@ -184,18 +188,36 @@ function checkCollision() {
       player.dy < obstacle.y + obstacle.height &&
       player.dy + player.dheight > obstacle.y
     ) {
-      endGame();
+      console.log("collision");
+      if (!obstacle.hit) {
+        score -= 100;
+        obstacle.hit = true;
+        console.log(`New score after deduction: ${score}`);
+      }
+
+      if (score <= 0) {
+        score = 0;
+        setTimeout(endGame, 1);
+      }
     }
   });
 }
 
 function drawPlayer() {
   let characterFrame = player.frames[currentCharacterFrame % 6];
-  ctx.drawImage(branko, characterFrame.sx, characterFrame.sy, characterFrame.width, characterFrame.height, player.dx, player.dy, player.dwidth, player.dheight);
+  ctx.drawImage(
+    branko,
+    characterFrame.sx,
+    characterFrame.sy,
+    characterFrame.width,
+    characterFrame.height,
+    player.dx,
+    player.dy,
+    player.dwidth,
+    player.dheight
+  );
 }
-function updatePlayer() {
-
-}
+function updatePlayer() {}
 
 // gameLoop
 let game_started = false;
@@ -219,7 +241,7 @@ const player = {
   Y_velocity: 0,
   grav: 0.6,
   jumping: false,
-}
+};
 let currentFrame = 0;
 let currentCharacterFrame = 0;
 function gameLoop(timestamp) {
@@ -242,7 +264,6 @@ function gameLoop(timestamp) {
   // update positions of images to canvas
   backgroundLayers.forEach((layer) => layer.update());
 
-  
   if (timestamp - lastObstacleTime > obstacleSpawnRate) {
     spawnObstacle();
     lastObstacleTime = timestamp;
@@ -256,7 +277,9 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
-// event listeners and handlers 
+const pauseButton = document.getElementById("pause-game");
+
+// event listeners and handlers
 window.addEventListener("keydown", (e) => {
   if (e.code === "Space" && !player.jumping) {
     player.jumping = true;
@@ -264,13 +287,12 @@ window.addEventListener("keydown", (e) => {
     playJumpSound();
   }
 });
-function handleEscape(e) {
-  e.preventDefault();
-  if (!game_started){
+function handlePause() {
+  if (!game_started) {
     return;
   }
   paused = !paused;
-  if (paused){
+  if (paused) {
     menu_dialog.showModal();
   } else {
     menu_dialog.close();
@@ -278,9 +300,11 @@ function handleEscape(e) {
     playMusic();
   }
 }
+
 window.addEventListener("keydown", (e) => {
   if (e.code === "Escape") {
-    handleEscape(e);
+    e.preventDefault();
+    handlePause();
   }
   if (e.code === "KeyM") {
     toggleSound();
@@ -304,31 +328,35 @@ window.onresize = function () {
   backgroundLayers.forEach((layer) => layer.resize());
 };
 
-// startGame 
+// startGame
+let score = 300;
 function startGame() {
   game_started = true;
-  score = 0;
-  menu_dialog.close()
+  paused = false;
+  menu_dialog.close();
   startMusic();
   gameLoop();
-}
-
-function isColliding(rect1, rect2) {
-  return (
-    rect1.x < rect2.x + rect2.width &&
-    rect1.x + rect1.width > rect2.x &&
-    rect1.y < rect2.y + rect2.height &&
-    rect1.y + rect1.height > rect2.y
-  );
+  pauseButton.blur();
 }
 
 function endGame() {
+  score = 0;
   paused = true;
   stopMusic();
-  alert("Game Over");
+  alert(`Game Over \u{1F480} \n You have 0 points`);
+}
+
+function wonGame() {
+  paused = true;
+  stopMusic();
+  alert(`You won with a score of ${score} \u{1F3C6}`);
 }
 
 function displayScore() {
   const scoreElement = document.getElementById("score");
   scoreElement.textContent = `Score: ${score}`;
+
+  if (score >= 1000) {
+    setInterval(wonGame, 1);
+  }
 }
