@@ -104,7 +104,7 @@ function playJumpSound() {
   SFX_Jump.play();
 }
 const SFX_HIT = new Audio("./assets/sfx/hit.wav");
-SFX_HIT.volume = 0.2;
+SFX_HIT.volume = 0.5;
 SFX_HIT.loop = false;
 function playHitSound() {
   SFX_HIT.play();
@@ -190,6 +190,7 @@ function checkCollision() {
       if (!obstacle.hit) {
         score -= 100;
         obstacle.hit = true;
+        playHitSound();
       }
 
       if (score <= 0) {
