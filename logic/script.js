@@ -3,6 +3,7 @@ const ctx = canvas.getContext("2d");
 
 // dialog handlers 
 const menu_dialog = document.getElementById("menu-dialog");
+const branko = document.getElementById("branko");
 
 let currentTab = {
   contentId: "main-menu",
@@ -98,27 +99,27 @@ function changeVolume(value) {
 }
 
 
-const player = {
-  x: 10,
-  Y: 285,
-  width: 30,
-  height: 50,
-  Y_velocity: 0,
-  grav: 0.6,
-  jumping: false,
-};
+// const player = {
+//   x: 10,
+//   Y: 260,
+//   width: 50,
+//   height: 80,
+//   Y_velocity: 0,
+//   grav: 0.5,
+//   jumping: false,
+// };
 
 function applyGravity() {
   if (player.jumping) {
     player.Y_velocity += player.grav;
-    player.Y += player.Y_velocity;
+    player.dy += player.Y_velocity;
     checkLanding();
   }
 }
 
 function checkLanding() {
-  if (player.Y >= 280) {
-    player.Y = 280;
+  if (player.dy >= 280) {
+    player.dy = 280;
     player.jumping = false;
     player.Y_velocity = 0;
   }
@@ -158,10 +159,10 @@ function drawObstacles(x) {
 function checkCollision() {
   obstacles.forEach((obstacle) => {
     if (
-      player.x < obstacle.x + obstacle.width &&
-      player.x + player.width > obstacle.x &&
-      player.Y < obstacle.y + obstacle.height &&
-      player.Y + player.height > obstacle.y
+      player.dx < obstacle.x + obstacle.width &&
+      player.dx + player.dwidth > obstacle.x &&
+      player.dy < obstacle.y + obstacle.height &&
+      player.dy + player.dheight > obstacle.y
     ) {
       endGame();
     }
@@ -169,14 +170,38 @@ function checkCollision() {
 }
 
 function drawPlayer() {
-  const playerImg = document.getElementById("player");
-  ctx.drawImage(playerImg, player.x, player.Y, player.width, player.height);
+  let characterFrame = player.frames[currentCharacterFrame % 6];
+  ctx.drawImage(branko, characterFrame.sx, characterFrame.sy, characterFrame.width, characterFrame.height, player.dx, player.dy, player.dwidth, player.dheight);
+}
+function updatePlayer() {
+
 }
 
 // gameLoop
 let game_started = false;
 let paused = false;
-
+const player = {
+  img: branko,
+  frames: [
+    { sx: 20, sy: 0, width: 20, height: 32 },
+    { sx: 85, sy: 0, width: 20, height: 32 },
+    { sx: 401, sy: 0, width: 20, height: 32 },
+    // { sx: 148, sy: 0, width: 20, height: 32 },
+    { sx: 213, sy: 0, width: 20, height: 32 },
+    { sx: 276, sy: 0, width: 20, height: 32 },
+    { sx: 466, sy: 0, width: 20, height: 32 },
+    // { sx: 337, sy: 0, width: 20, height: 32 },
+  ],
+  dx: 10,
+  dy: 260,
+  dwidth: 50,
+  dheight: 80,
+  Y_velocity: 0,
+  grav: 0.5,
+  jumping: false,
+}
+let currentFrame = 0;
+let currentCharacterFrame = 0;
 function gameLoop(timestamp) {
   if (paused) {
     return;
@@ -185,7 +210,15 @@ function gameLoop(timestamp) {
 
   // draw images to canvas order of rendering is important
   backgroundLayers.forEach((layer) => layer.draw());
+  // let characterFrame = branko_initial.frames[currentCharacte  characterFrame.width, characterFrame.height, 0, 0, 50, 70);
+  // ctx.drawImage(branko, branko_initial.sx, branko_initial.sy, branko_initial.width, branko_initial.height, 0, 0, 70, 70);
 
+  if (currentFrame % 8 == 0) {
+    currentCharacterFrame = currentCharacterFrame + 1;
+    // characterFrame = branko_initial.frames[currentCharacterFrame];
+  }
+  currentFrame++;
+  // branko_initial.sx += 32 + 20;
   // update positions of images to canvas
   backgroundLayers.forEach((layer) => layer.update());
 
