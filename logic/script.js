@@ -11,6 +11,7 @@ let currentTab = {
   contentId: "main-menu",
   buttonId: "main-menu-btn",
 };
+
 function openTab(elem, target) {
   elem.parentElement.classList.add("active");
   document
@@ -21,42 +22,43 @@ function openTab(elem, target) {
   currentTab.contentId = target;
   currentTab.buttonId = elem.id;
 }
-
+function scaleToAspectRatio(width, height, newHeight) {
+  let quotent = width / height;
+  return {quotent: quotent, width: quotent * newHeight, height: newHeight};
+}
 // background handlers
 class BgLayer {
   constructor(img, speed = 1) {
     this.img = img;
-    this.quotent = img.width / img.height;
-    this.img.height = canvas.height;
-    this.img.width = this.quotent * canvas.height;
+    let {quotent, width, height} = scaleToAspectRatio(img.width, img.height, canvas.height);
+    this.quotent = quotent;
+    this.img.height = height;
+    this.img.width = width;
     this.speed = speed;
-    this.width = img.width;
-    this.height = canvas.height;
     this.x1 = 0;
-    this.x2 = img.width;
+    this.x2 = this.img.width;
   }
-  resize() {
-    this.img.height = canvas.height;
-    this.img.width = this.quotent * canvas.height;
-    this.height = canvas.height;
-    this.width = this.img.width;
+  resize(height) {
+    this.img.height = height;
+    this.img.width = this.quotent * height;
     this.x1 = this.x1 - this.img.width;
     this.x2 = this.x2 - this.img.width;
   }
 
   draw() {
-    ctx.drawImage(this.img, this.x1, 0, this.width, this.height);
-    ctx.drawImage(this.img, this.x2, 0, this.width, this.height);
+    ctx.drawImage(this.img, this.x1, 0, this.img.width, this.img.height);
+    ctx.drawImage(this.img, this.x2, 0, this.img.width, this.img.height);
   }
-  update() {
-    if (this.x1 < -this.width + this.speed) {
-      this.x1 = this.width - this.speed + this.x2;
+  update(speed) {
+    if (this.x1 < -this.img.width + this.speed) {
+      this.x1 = this.img.width - this.speed + this.x2;
     }
-    if (this.x2 < -this.width + this.speed) {
-      this.x2 = this.width - this.speed + this.x1;
+    if (this.x2 < -this.img.width + this.speed) {
+      this.x2 = this.img.width - this.speed + this.x1;
     }
     this.x1 -= this.speed;
     this.x2 -= this.speed;
+    this.speed += speed;
   }
 }
 
@@ -67,7 +69,12 @@ const backgroundImages = Array.from(
     a.attributes["data-layer-level"].value -
     b.attributes["data-layer-level"].value
 );
+// TODO make spinner for that waits for all images to be loaded then open dialog
+let loadedImages = 0;
 const backgroundLayers = backgroundImages.map((image) => {
+  image.onload = () => {
+    loadedImages++;
+  };
   return new BgLayer(image, image.attributes["data-layer-level"].value * 1);
 });
 
@@ -116,16 +123,6 @@ function controlSFXVolume(value) {
   }
 }
 
-// const player = {
-//   x: 10,
-//   Y: 260,
-//   width: 50,
-//   height: 80,
-//   Y_velocity: 0,
-//   grav: 0.5,
-//   jumping: false,
-// };
-
 function applyGravity() {
   if (player.jumping) {
     player.Y_velocity += player.grav;
@@ -135,24 +132,24 @@ function applyGravity() {
 }
 
 function checkLanding() {
-  if (player.dy >= 260) {
-    player.dy = 260;
+  if (player.dy >= yFloorCords - player.dheight) {
+    player.dy = yFloorCords - player.dheight;
     player.jumping = false;
     player.Y_velocity = 0;
   }
 }
 
-const obstacles = [];
+let obstacles = [];
 let lastObstacleTime = 0;
 const obstacleSpawnRate = 1500;
-
+let yFloorCords = canvas.height - 70;
 function spawnObstacle() {
   const obstacle = {
     sprite_type: Math.floor(Math.random() * 3) * 32,
     x: canvas.width + Math.random() * 100,
-    y: 305,
-    width: Math.floor(Math.random() * (50 - 30) + 30),
-    height: 30,
+    y: yFloorCords - player.dheight/2,
+    width: Math.floor(Math.random() * (50 - (player.dwidth/2)) + (player.dwidth/2)),
+    height: (player.dwidth/2),
     img: document.getElementById("obstacle"),
     hit: false,
   };
@@ -207,7 +204,7 @@ function checkCollision() {
 }
 
 function drawPlayer() {
-  let characterFrame = player.frames[currentCharacterFrame % 6];
+  let characterFrame = player.frames[player.currentCharacterFrame % 6];
   ctx.drawImage(
     branko,
     characterFrame.sx,
@@ -220,33 +217,43 @@ function drawPlayer() {
     player.dheight
   );
 }
-function updatePlayer() {}
+function updatePlayer(currentFrame) {
+  if (currentFrame % player.frames.length == 0) {
+    player.currentCharacterFrame++;
+  }
+}
 
 // gameLoop
 let game_started = false;
 let paused = false;
+let {quotent: playerQuotent, width: playerWidth, height: playerHeight} = scaleToAspectRatio(32, branko.height, 70);
 const player = {
   img: branko,
+  quotent: playerQuotent,
   frames: [
     { sx: 20, sy: 0, width: 20, height: 32 },
     { sx: 85, sy: 0, width: 20, height: 32 },
     { sx: 401, sy: 0, width: 20, height: 32 },
-    // { sx: 148, sy: 0, width: 20, height: 32 },
     { sx: 213, sy: 0, width: 20, height: 32 },
     { sx: 276, sy: 0, width: 20, height: 32 },
     { sx: 466, sy: 0, width: 20, height: 32 },
-    // { sx: 337, sy: 0, width: 20, height: 32 },
   ],
-  dx: 10,
-  dy: 260,
-  dwidth: 50,
-  dheight: 70,
+  currentCharacterFrame: 0,
+  dx: 15,
+  dy: yFloorCords - playerHeight,
+  dwidth: playerWidth,
+  dheight: playerHeight,
   Y_velocity: 0,
   grav: 0.6,
   jumping: false,
+  resize: (height) => {
+    player.dwidth = player.quotent * height;
+    player.dheight = height;
+    player.dy = yFloorCords - height;
+  }
 };
 let currentFrame = 0;
-let currentCharacterFrame = 0;
+let obstacleSpeed = 7;
 function gameLoop(timestamp) {
   if (paused) {
     return;
@@ -255,42 +262,31 @@ function gameLoop(timestamp) {
 
   // draw images to canvas order of rendering is important
   backgroundLayers.forEach((layer) => layer.draw());
-  // let characterFrame = branko_initial.frames[currentCharacte  characterFrame.width, characterFrame.height, 0, 0, 50, 70);
-  // ctx.drawImage(branko, branko_initial.sx, branko_initial.sy, branko_initial.width, branko_initial.height, 0, 0, 70, 70);
 
-  if (currentFrame % 8 == 0) {
-    currentCharacterFrame = currentCharacterFrame + 1;
-    // characterFrame = branko_initial.frames[currentCharacterFrame];
-  }
-  currentFrame++;
-  // branko_initial.sx += 32 + 20;
+  drawPlayer();
+  
   // update positions of images to canvas
-  backgroundLayers.forEach((layer) => layer.update());
+  backgroundLayers.forEach((layer) => layer.update(Math.floor(score / 1000)));
 
   if (timestamp - lastObstacleTime > obstacleSpawnRate) {
     spawnObstacle();
     lastObstacleTime = timestamp;
   }
-
-  drawObstacles(6);
+  updatePlayer(currentFrame);
+  obstacleSpeed += Math.floor(score / 1000);
+  drawObstacles(obstacleSpeed);
   applyGravity();
   checkCollision();
-  drawPlayer();
   displayScore();
   requestAnimationFrame(gameLoop);
+  
+  currentFrame++;
 }
 
 const pauseButton = document.getElementById("pause-game");
 
-// event listeners and handlers
-window.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && !player.jumping) {
-    player.jumping = true;
-    player.Y_velocity = -10;
-    playJumpSound();
-  }
-});
 function handlePause() {
+
   if (!game_started) {
     return;
   }
@@ -303,9 +299,20 @@ function handlePause() {
     playMusic();
   }
 }
-
+let jumpVelocity = -10;
+function handleJump() {
+  if (!player.jumping) {
+    player.jumping = true;
+    player.Y_velocity = jumpVelocity;
+    playJumpSound();
+  }
+}
 window.addEventListener("keydown", (e) => {
-  if (e.code === "Escape") {
+  if (e.code === "Space" && !player.jumping) {
+    e.preventDefault();
+    handleJump();
+  }
+  if (e.code === "Escape" | e.code === "KeyP") {
     e.preventDefault();
     handlePause();
   }
@@ -319,40 +326,64 @@ window.addEventListener("keydown", (e) => {
     changeVolume(music.volume - 0.1);
   }
 });
-
+canvas.addEventListener("pointerdown", () => {
+  handleJump();
+});
 window.onload = function () {
   menu_dialog.showModal();
   backgroundLayers.forEach((layer) => layer.draw());
 };
 
+function handleResize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  ctx.imageSmoothingEnabled = false;
+  ctx.webkitImageSmoothingEnabled = false;
+  player.resize(canvas.height / 6);
+  yFloorCords = canvas.height - player.dheight;
+  jumpVelocity = -player.dheight / 9;
+  obstacles.forEach((obstacle) => {
+    obstacle.height = player.dheight/2;
+    obstacle.y = yFloorCords - obstacle.height;
+  });
+  backgroundLayers.forEach((layer) => layer.resize(canvas.height));
+}
 window.onresize = function () {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  backgroundLayers.forEach((layer) => layer.resize());
+  handleResize();
 };
 
 // startGame
 let score = 300;
+
 function startGame() {
+  obstacles = [];
+  lastObstacleTime = 0;
+  score = 300;
   game_started = true;
   paused = false;
   menu_dialog.close();
   startMusic();
   gameLoop();
   pauseButton.blur();
+
 }
 
 function endGame() {
   score = 0;
   paused = true;
   stopMusic();
-  alert(`Game Over \u{1F480} \n You have 0 points`);
+  menu_dialog.querySelector("#title").textContent = `You Lost`;
+  game_started = false;
+  menu_dialog.showModal();
 }
-
 function wonGame() {
   paused = true;
   stopMusic();
-  alert(`You won with a score of ${score} \u{1F3C6}`);
+  game_started = false;
+  menu_dialog.querySelector("#title").textContent = `You Won with a score of ${score} \u{1F3C6}`;
+  menu_dialog.showModal();
 }
 
 function displayScore() {
@@ -360,6 +391,6 @@ function displayScore() {
   scoreElement.textContent = `Score: ${score}`;
 
   if (score >= 1000) {
-    setInterval(wonGame, 1);
+    setTimeout(wonGame, 1);
   }
 }
